@@ -1,71 +1,61 @@
 # PawMemory
 
-PawMemory is a personal memory for a pet. Small moments are kept over time, connected into one Personal Brain, and turned into a useful answer when someone needs to care for that pet.
+PawMemory is a demo I built for one idea: a pet’s moments should stay connected, so the next person caring for them does not start from zero.
 
-This repository is the demo interface. It follows one dog, Momo, a four-year-old Golden Retriever.
-
----
-
-## Overview
-
-Pet details usually live in scattered notes, texts, and memory. A sitter or a vet visit then starts from scratch.
-
-PawMemory keeps those moments in one place and answers from them. A question such as “What should Sarah know about Momo?” can draw on routine, preferences, people, and past visits instead of a single note.
-
-The demo shows that loop with Momo and Sarah:
-
-separate moments over time → Momo's Personal Brain → one useful answer
+The demo pet is Momo, a four-year-old Golden Retriever. Sarah is the person who looks after her.
 
 ---
 
-## Current features
+## Why
 
-- Ask PawMemory, with a live streamed answer
-- Quick prompts for a caregiver brief, recent changes, and a vet visit summary
-- Markdown answers, with internal runtime logs hidden
-- Remember this, for a written note about Momo
-- A memory timeline for routine, preferences, people, and new moments
-- A caregiver brief prepared for Sarah
-- A share sheet that copies a care-guide link
-- A pet profile for Momo
+The useful facts about a pet are usually scattered. Breakfast time is in one note. A bad first visit with a sitter is in another. By the time someone asks “what should Sarah know?”, a person has to reassemble that by hand.
 
-Photo and voice notes are visible and marked “Soon.” They do not save anything.
+PawMemory keeps those moments and answers from them. The path is:
+
+separate moments → Momo’s Personal Brain → one answer someone can use
 
 ---
 
-## How a question is answered
+## What you can do in the demo
 
-1. The owner asks about Momo, or saves a written memory.
-2. The interface sends that turn to a local ClawMax agent, `pawmemory-agent-for-a-pet-personal-brain`.
-3. ClawMax runs the agent through OpenClaw.
-4. Cognee is the memory layer the agent uses to connect relevant moments.
-5. The answer streams back into the PawMemory page.
+- Ask a question about Momo and watch the answer stream in
+- Fill the question from three prompts: caregiver brief, recent changes, vet visit summary
+- Read the answer as formatted text. Runtime logs from the agent are hidden
+- Save a written note with Remember this
+- Look through Momo’s memories as a short timeline
+- Open the caregiver brief prepared for Sarah, and copy a share link
 
-Cognee is named in the interface as the technology behind the Personal Brain. The product the person sees is PawMemory.
-
----
-
-## Architecture
-
-- **Interface (`src/`)**: React pages for Ask, Add Memory, and Memories. There is no router. Views switch in the page.
-- **Dev proxy (`vite.config.js`)**: `/api` is forwarded to `http://localhost:3001` while `npm run dev` is running.
-- **Agent runtime**: ClawMax and OpenClaw, running locally. They are not included in this repository.
-- **Memory**: Cognee, reached through that agent. This repository does not store the brain itself.
-
-Ask uses a new session id for each question. Remember this uses one session, `pawmemory-ui-memory`.
+Photo and Voice are on the Add Memory screen and labeled Soon. They do not upload or record anything.
 
 ---
 
-## Tech stack
+## What happens when you ask
 
-- Frontend: React, Vite
-- Agent host: ClawMax
+The page does not answer by itself.
+
+1. Ask PawMemory, or Remember this, sends the text to a local ClawMax agent named `pawmemory-agent-for-a-pet-personal-brain`.
+2. ClawMax runs that agent with OpenClaw.
+3. Cognee is the memory store that agent searches.
+4. The reply streams back onto the page.
+
+Each question gets its own session id. Remember this always uses the session `pawmemory-ui-memory`.
+
+Cognee shows up in the interface as the system that connected the memories. The thing a person uses is still PawMemory.
+
+---
+
+## Stack
+
+- Interface: React and Vite, in this repo
+- Agent host: ClawMax, local, not in this repo
 - Agent runtime: OpenClaw
-- Memory: Cognee
+- Memory: Cognee, through the agent
+
+`vite.config.js` proxies `/api` to `http://localhost:3001` during `npm run dev`. A production build does not proxy, so live Ask and Remember this need the dev server.
 
 ---
 
-## Run locally
+## Run it
 
 ```bash
 npm install
@@ -74,23 +64,21 @@ npm run dev
 
 Open the URL Vite prints.
 
-ClawMax must be running at `http://localhost:3001` for Ask PawMemory and Remember this. The caregiver brief, memory list, and the rest of the screen still render if it is not.
-
-`npm run build` creates a static site. That build does not proxy `/api`, so live answers require the dev server.
+ClawMax has to be up on port 3001 or the question will fail with a short error. The Sarah brief and the memory list still show without it.
 
 ---
 
-## What this demo does not do yet
+## What is still a demo
 
-- Accounts, or more than one real pet. “Add another pet” only closes the menu.
-- A public share page. Share with Sarah copies a link. It does not publish the brief.
-- Photo or voice capture.
-- A hosted URL. The interface and the agent both run on your machine.
-
-The memory list in the browser is the demo’s local view. A saved note is sent to the agent first. Refreshing the page restores the original Momo stories in the list.
+- One real pet. Momo is hardcoded. Add another pet closes the menu and does not create a pet.
+- Share with Sarah copies `/care/momo-for-sarah`. There is no public page behind that link.
+- The timeline on screen is local. Remember this does send the note to the agent, but a refresh puts the original Momo stories back in the list.
+- No accounts, no hosted site, no photo or voice storage.
 
 ---
 
-## Demo story
+## The story on screen
 
-Momo has a morning and evening routine, likes chicken treats and a yellow tennis ball, and dislikes carrots. Sarah’s visits run from a nervous first meeting in June 2026 to an excited greeting in September 2026. The caregiver brief is what someone would hand a pet sitter before leaving Momo with her.
+Momo eats breakfast at 8:00 AM, walks at 9:00 AM, eats dinner at 6:00 PM, and walks again at 7:00 PM. She likes chicken treats and a yellow tennis ball, and she dislikes carrots.
+
+Sarah’s visits are the relationship the brief is built from. In June 2026 Momo hid near the bedroom. In July she played. In September she met Sarah at the door.
