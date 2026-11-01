@@ -1,84 +1,84 @@
 # PawMemory
 
-PawMemory is a demo I built for one idea: a pet’s moments should stay connected, so the next person caring for them does not start from zero.
+PawMemory is a pet memory assistant I built for a hackathon using Cognee, OpenClaw, and ClawMax. It explores how an AI agent can remember a pet's routines, preferences, and past experiences, then use that information to help someone caring for them.
 
-The demo pet is Momo, a four-year-old Golden Retriever. Sarah is the person who looks after her.
+For the demo, I created Momo, a four-year-old Golden Retriever, and her caregiver, Sarah. Momo has a history of daily routines, preferences, and interactions with Sarah over several months.
 
----
+The goal was to see whether an agent could connect those separate memories and answer questions without needing the pet's history explained again each time.
 
-## Why
+## Features
 
-The useful facts about a pet are usually scattered. Breakfast time is in one note. A bad first visit with a sitter is in another. By the time someone asks “what should Sarah know?”, a person has to reassemble that by hand.
+- **Ask PawMemory:** Ask questions about Momo and receive streamed responses from the agent.
+- **Suggested questions:** Try a caregiver brief, recent changes, or vet visit summary.
+- **Remember this:** Send a new text memory to the agent.
+- **Memory timeline:** Browse Momo's example memories and past experiences.
+- **Caregiver brief:** View a summary prepared for Sarah.
+- **Photo and Voice:** Shown in the interface as planned features, but not implemented yet.
 
-PawMemory keeps those moments and answers from them. The path is:
+## How it works
 
-separate moments → Momo’s Personal Brain → one answer someone can use
+PawMemory uses ClawMax and OpenClaw to connect the frontend to Cognee's memory system.
 
----
+1. The React frontend sends a question or memory to a local ClawMax agent.
+2. ClawMax runs the agent through OpenClaw.
+3. The agent uses Cognee to retrieve relevant memories.
+4. The response streams back to the frontend.
 
-## What you can do in the demo
+The agent is named `pawmemory-agent-for-a-pet-personal-brain`.
 
-- Ask a question about Momo and watch the answer stream in
-- Fill the question from three prompts: caregiver brief, recent changes, vet visit summary
-- Read the answer as formatted text. Runtime logs from the agent are hidden
-- Save a written note with Remember this
-- Look through Momo’s memories as a short timeline
-- Open the caregiver brief prepared for Sarah, and copy a share link
+Each question uses a separate session ID, while new memories are sent through the `pawmemory-ui-memory` session.
 
-Photo and Voice are on the Add Memory screen and labeled Soon. They do not upload or record anything.
+The frontend displays the agent's answer without showing its internal runtime logs.
 
----
+## Tech Stack
 
-## What happens when you ask
+| Component | Technology |
+|---|---|
+| Frontend | React, Vite, JavaScript |
+| Agent Host | ClawMax |
+| Agent Runtime | OpenClaw |
+| Memory | Cognee |
+| Communication | REST API, Server-Sent Events (SSE) |
 
-The page does not answer by itself.
+## Running Locally
 
-1. Ask PawMemory, or Remember this, sends the text to a local ClawMax agent named `pawmemory-agent-for-a-pet-personal-brain`.
-2. ClawMax runs that agent with OpenClaw.
-3. Cognee is the memory store that agent searches.
-4. The reply streams back onto the page.
-
-Each question gets its own session id. Remember this always uses the session `pawmemory-ui-memory`.
-
-Cognee shows up in the interface as the system that connected the memories. The thing a person uses is still PawMemory.
-
----
-
-## Stack
-
-- Interface: React and Vite, in this repo
-- Agent host: ClawMax, local, not in this repo
-- Agent runtime: OpenClaw
-- Memory: Cognee, through the agent
-
-`vite.config.js` proxies `/api` to `http://localhost:3001` during `npm run dev`. A production build does not proxy, so live Ask and Remember this need the dev server.
-
----
-
-## Run it
+Install dependencies and start the development server:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open the URL Vite prints.
+Open the local URL provided by Vite.
 
-ClawMax has to be up on port 3001 or the question will fail with a short error. The Sarah brief and the memory list still show without it.
+The frontend expects ClawMax to be running on port `3001`. During development, Vite proxies `/api` requests to `http://localhost:3001`.
 
----
+Without the agent running, Ask PawMemory and Remember this won't work, but the example memory timeline and caregiver brief will still be visible.
 
-## What is still a demo
+The production build does not include this development proxy.
 
-- One real pet. Momo is hardcoded. Add another pet closes the menu and does not create a pet.
-- Share with Sarah copies `/care/momo-for-sarah`. There is no public page behind that link.
-- The timeline on screen is local. Remember this does send the note to the agent, but a refresh puts the original Momo stories back in the list.
-- No accounts, no hosted site, no photo or voice storage.
+## Demo Scenario
 
----
+Momo's example data includes her daily schedule, favorite things, and interactions with Sarah.
 
-## The story on screen
+She eats breakfast at 8 AM, takes walks at 9 AM and 7 PM, and has dinner at 6 PM. She loves chicken treats and her yellow tennis ball but doesn't like carrots.
 
-Momo eats breakfast at 8:00 AM, walks at 9:00 AM, eats dinner at 6:00 PM, and walks again at 7:00 PM. She likes chicken treats and a yellow tennis ball, and she dislikes carrots.
+Her relationship with Sarah also changes over time:
 
-Sarah’s visits are the relationship the brief is built from. In June 2026 Momo hid near the bedroom. In July she played. In September she met Sarah at the door.
+- **June 2026:** Momo was nervous and hid near the bedroom.
+- **July 2026:** She became more comfortable and started playing with Sarah.
+- **September 2026:** She greeted Sarah at the door.
+
+I used these examples to test whether the agent could retrieve information across different memories and recognize changes over time.
+
+## Current Limitations
+
+This is a hackathon prototype, not a production application.
+
+- Momo is the only pet in the demo. Adding another pet isn't implemented.
+- The memory timeline uses local example data. New memories are sent to the agent but don't persist in the displayed timeline after a refresh.
+- The caregiver share button copies `/care/momo-for-sarah`, but there is no public share page yet.
+- Photo and voice uploads aren't implemented.
+- There is no authentication, hosted backend, or persistent frontend database.
+
+The main focus was testing the agent and memory integration rather than building a complete pet management application.
